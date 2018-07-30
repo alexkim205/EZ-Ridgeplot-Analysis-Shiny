@@ -9,16 +9,6 @@ plot_theme <- theme(text = element_text(size = 15),
                     # axis.text.y = element_text(size = 12, angle = 30, vjust = -1.8),
                     axis.text.x = element_text(size = 12))
 
-x_labelFormatter <- function(x) {
-  if(x == 0) {
-    lab <- "0"
-  } else if(x == 1) {
-    lab <- "1"
-  } else {
-    lab <- toString(x)
-  }
-}
-
 make_summary_plot <- function(df, select_target_gene, select_readout_class = NA) {
   #! Plots bias distribution for all perturbations except select_target_gene overlayed with bias for shRNA against select_target_gene, 
   #! divided by readout gene, measurement, and day of measurement.

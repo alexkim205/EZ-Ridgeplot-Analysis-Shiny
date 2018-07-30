@@ -15,7 +15,7 @@ source("plot.R") # Import make_summary_plot() function
 shinyServer(function(input, output, session) {
   
   width_per_day = 250
-  height_per_replicant = 20
+  height_per_replicate = 20
   
   # Store reactive values
   v <- reactiveValues(
@@ -24,11 +24,23 @@ shinyServer(function(input, output, session) {
   )
   
   tab_width = eventReactive(input$submit, {
-    width_per_day * length(input$"_day")
+    
+    width_per_day * nrow(v$data %>% filter(day %in% input$"_day") %>% count(day))
+    # width_per_day * length(unique(v$filtered_df$day))
+    # width_per_day * length(input$"_day")
   })
   tab_height = eventReactive(input$submit, {
-    row_height <- length(input$"_rep") * height_per_replicant
-    row_height * length(input$"_readout_gene")
+    
+    len_of_rep <- length(input$"_rep")
+    len_of_readout <- nrow(v$data %>% filter(readout_gene %in% input$"_readout_gene") %>% count(readout_gene))
+    
+    len_of_rep * height_per_replicate * len_of_readout
+    
+    # row_height <- length(unique(v$filtered_df$replicate)) * height_per_replicant
+    # row_height * length(unique(v$filtered_df$readout_gene))
+    # 
+    # row_height <- length(input$"_rep") * height_per_replicant
+    # row_height * length(input$"_readout_gene")
   })
   
   # Data
@@ -88,6 +100,11 @@ shinyServer(function(input, output, session) {
   })
   
   output$mainplotui <- renderUI({
+    
+    if (tab_width() == 0 || tab_height() == 0) {
+      return(NULL)
+    }
+    
       plotOutput("mainplot",
                  width = tab_width(),
                  height = tab_height())

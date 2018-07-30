@@ -7,7 +7,7 @@ num_reads_thr <- 50  # threshold for UMI count in no-UMI assays
 min_dist_to_median <- 0.0
 
 # Data munging
-path <- "/Users/alexkim/Desktop/Gimelbrant/ridgeplots/by_alex/"
+path <- "/Users/alexkim/Dropbox/Gimelbrant_Lab/ridgeplots/by_alex/"
 file <- "data/20180306_DBI31_sequencing_summary.csv"
 #df <- read_csv(paste0(path, "data/test_data.csv"), col_types = "cccccccdii")
 df <- read_csv(paste0(path, "data/20180306_DBI31_sequencing_summary.csv"), col_types = "cccccccdici")
