@@ -21,10 +21,12 @@ shinyUI(fluidPage(
                # Parameters
                column(3,
                       h4("Parameters"),
-                      fileInput('file', 'Choose a CSV File', accept=c(
+                      fileInput('file', 'Choose CSV Files', accept=c(
                         "text/csv",
                         "text/comma-separated-values,text/plain",
-                        ".csv"))),
+                        ".csv"),
+                        multiple = TRUE)
+                      ),
                column(3,
                       uiOutput('pert'),
                       uiOutput('pert_type'),

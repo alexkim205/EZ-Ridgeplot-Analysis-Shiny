@@ -3,6 +3,7 @@ library(shinyWidgets)
 library(shinycssloaders)
 library(tidyverse)
 library(ggridges)
+library(data.table)
 
 # ── Conflicts ──
 # ✖ dplyr::filter() masks stats::filter()
@@ -19,8 +20,8 @@ shinyServer(function(input, output, session) {
   width_per_day = 250
   height_per_replicate = 20
   ## By drug plot 
-  width_of_readout_genes = 500
-  height_per_day = 250
+  width_of_readout_genes = 800
+  height_per_day = 350
   
   # Store reactive values
   v <- reactiveValues(
@@ -63,7 +64,19 @@ shinyServer(function(input, output, session) {
     if (is.null(infile)){
       v$data <- NULL    
     }
-    df <- read_csv(infile$datapath, col_types = "cccccccdici")
+    filter_df <- function(x) {
+      ## change this when column headers are different TODO make this more
+      ## generalizable or implement something in Shiny where user can choose
+      ## which headers are relevant
+      
+      x %>% 
+        select(readout_gene, readout_class, replicate, assay, target_gene, 
+               day, shrna, bias, num_reads, cell_density, extra_umi)
+    }
+    dfs <- lapply(input$file$datapath, fread, header = TRUE, na.strings = "N/A", stringsAsFactors=FALSE)
+    dfs.filtered <- lapply(dfs, filter_df)
+    df <- rbindlist(dfs.filtered , use.names = TRUE, fill = FALSE)
+    
     df <- df %>% 
       mutate(replicate = paste0("rep", replicate)) %>% 
       mutate(day = paste("day", day, sep = "_")) %>% 
@@ -145,6 +158,7 @@ shinyServer(function(input, output, session) {
     df <- check_data(v$data)
     df <- df %>% 
       filter(day %in% input$"_day_drug" & readout_gene %in% input$"_readout_gene_drug")
+    
     if (is.null(df)) return (NULL)
     
     make_drug_plot(df, input$"_readout_gene_drug", "MAE")

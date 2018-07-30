@@ -7,10 +7,11 @@ num_reads_thr <- 50  # threshold for UMI count in no-UMI assays
 min_dist_to_median <- 0.0
 
 # Data munging
-path <- "/Users/alexkim/Dropbox/Gimelbrant_Lab/ridgeplots/by_alex/"
+path <- "/Users/alexkim/Dropbox/Gimelbrant_Lab/ridgeplots/by_alex"
+file2 <- "data/20180403_Drug_screen_summary.csv"
 file <- "data/20180306_DBI31_sequencing_summary.csv"
 #df <- read_csv(paste0(path, "data/test_data.csv"), col_types = "cccccccdii")
-df <- read_csv(paste0(path, "data/20180306_DBI31_sequencing_summary.csv"), col_types = "cccccccdici")
+df <- read_csv(file.path(path, "data/20180306_DBI31_sequencing_summary.csv"), col_types = "cccccccdici")
 
 df <- df %>% 
   mutate(replicate = paste0("rep", replicate)) %>% 
@@ -36,7 +37,8 @@ plot_theme <- theme(text = element_text(size = 15),
 make_violin_plot <- function(df, select_target_gene, select_readout_class = NA) {
   
   # Prettify
-  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day)))))
+  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day))))) %>%
+    mutate(bias = as.numeric(bias))
   
   # Filtering for genes of interest
   if (!is.na(select_readout_class)) {
@@ -66,7 +68,8 @@ make_violin_plot <- function(df, select_target_gene, select_readout_class = NA) 
 make_ridge_plot <- function(df, select_target_gene, select_readout_class = NA) {
   
   # Prettify
-  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day)))))
+  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day))))) %>%
+    mutate(bias = as.numeric(bias))
   
   # Filtering for genes of interest
   if (!is.na(select_readout_class)) {
@@ -92,7 +95,8 @@ make_ridge_plot <- function(df, select_target_gene, select_readout_class = NA) {
 make_box_plot <- function(df, select_target_gene, select_readout_class = NA) {
   
   # Prettify
-  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day)))))
+  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day))))) %>%
+    mutate(bias = as.numeric(bias))
   
   # Filtering for genes of interest
   if (!is.na(select_readout_class)) {
@@ -117,7 +121,8 @@ make_box_plot <- function(df, select_target_gene, select_readout_class = NA) {
 make_drug_plot <- function(df, select_target_gene, select_readout_class = NA) {
   
   # Prettify
-  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day)))))
+  df <- df %>% mutate(day = paste0("Day ", sprintf("%02d",as.numeric(gsub("^.*\\_","",day))))) %>%
+    mutate(bias = as.numeric(bias))
   
   # Filtering for genes of interest
   if (!is.na(select_readout_class)) {
