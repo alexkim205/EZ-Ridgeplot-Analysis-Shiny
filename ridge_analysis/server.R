@@ -14,8 +14,13 @@ source("plot.R") # Import make_summary_plot() function
 
 shinyServer(function(input, output, session) {
   
+  # Plot dimensions
+  ## Main screen plot
   width_per_day = 250
   height_per_replicate = 20
+  ## By drug plot 
+  width_of_readout_genes = 500
+  height_per_day = 250
   
   # Store reactive values
   v <- reactiveValues(
@@ -41,6 +46,11 @@ shinyServer(function(input, output, session) {
     # 
     # row_height <- length(input$"_rep") * height_per_replicant
     # row_height * length(input$"_readout_gene")
+  })
+  drug_tab_height = eventReactive(input$submit_drug, {
+    
+    height_per_day * nrow(v$data %>% filter(day %in% input$"_day_drug") %>% count(day))
+
   })
   
   # Data
@@ -71,7 +81,10 @@ shinyServer(function(input, output, session) {
   
   # Plot
   
-  plot <- eventReactive(input$submit, {
+  ## Main Plot
+  
+  check_data <- function(data) {
+    
     # Gather data & parameters
     df <- v$data
     pert_ <- input$"_pert"
@@ -87,16 +100,31 @@ shinyServer(function(input, output, session) {
     if (is.null(day_)) return(NULL)
     if (is.null(readout_gene_)) return(NULL)
     
-    # Filter master df by selected parameters
-    df <- df %>% 
-      filter(  target_gene == pert_ &
-                 shrna %in% pert_type_ &
-                 replicate %in% gsub("(.+?)(\\_.*)", "\\1", rep_) &
-                 assay %in% gsub("^.*\\_","",rep_) &
-                 day %in% day_ &
-                 readout_gene %in% readout_gene_)
+    return (df)
+  }
+  
+  plot <- eventReactive(input$submit, {
     
-    make_summary_plot(df, pert_, "MAE")
+    df <- check_data(v$data)
+    df <- df %>% 
+      filter(  target_gene == input$"_pert" &
+                 shrna %in% input$"_pert_type" &
+                 replicate %in% gsub("(.+?)(\\_.*)", "\\1", input$"_rep") &
+                 assay %in% gsub("^.*\\_","",input$"_rep") &
+                 day %in% input$"_day" &
+                 readout_gene %in% input$"_readout_gene")
+    if (is.null(df)) return (NULL)
+    
+    switch (input$plottype,
+      "ridge" = make_ridge_plot(df, input$"_pert", "MAE"),
+      "violin" = make_violin_plot(df, input$"_pert", "MAE"),
+      "box" = make_box_plot(df, input$"_pert", "MAE")
+    )
+    
+  })
+  
+  output$mainplot <- renderPlot({
+    plot()
   })
   
   output$mainplotui <- renderUI({
@@ -110,8 +138,32 @@ shinyServer(function(input, output, session) {
                  height = tab_height())
   })
   
-  output$mainplot <- renderPlot({
-    plot()
+  ## Drug Plot
+  
+  drug_plot <- eventReactive(input$submit_drug, {
+    
+    df <- check_data(v$data)
+    df <- df %>% 
+      filter(day %in% input$"_day_drug" & readout_gene %in% input$"_readout_gene_drug")
+    if (is.null(df)) return (NULL)
+    
+    make_drug_plot(df, input$"_readout_gene_drug", "MAE")
+    
+  })
+  
+  output$drugplot <- renderPlot({
+   drug_plot()
+  })
+  
+  output$drugplotui <- renderUI({
+    
+    if (tab_width() == 0 || tab_height() == 0) {
+      return(NULL)
+    }
+    
+    plotOutput("drugplot",
+               width = width_of_readout_genes,
+               height = drug_tab_height())
   })
   
   # Reactively get data to populate UI
@@ -171,6 +223,7 @@ shinyServer(function(input, output, session) {
   
   # Render UI for parameters
   
+  ## Main plot parameters
   output$pert <- renderUI({
     selectInput('_pert', 'Perturbation', getPert())
   })
@@ -186,7 +239,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE)
   })
   output$rep <- renderUI({
-    pickerInput('_rep', 'Replicant', 
+    pickerInput('_rep', 'Replicate', 
                 choices = getRep(),
                 selected = getRep(),
                 options = list(
@@ -218,13 +271,37 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE)
   })
   
+  ## Drug plot parameters
+  
+  output$readout_gene_drug <- renderUI({
+    selectInput('_readout_gene_drug', 'Perturbation', getReadOutGene())
+  })
+  output$day_drug <- renderUI({
+    pickerInput('_day_drug', 'Day', 
+                choices = getDay(),
+                selected = getDay(),
+                options = list(
+                  `actions-box` = TRUE, 
+                  size = 10
+                ), 
+                multiple = TRUE)
+  })
+  
   # Download plot
   
   output$downloadPlot <- downloadHandler(
-    filename = function() { paste(input$dataset, '.png', sep='') },
+    filename = function() { paste0(tools::file_path_sans_ext(input$file$datapath), '.png') },
     content = function(file) {
       ggsave(file, plot = plot(), device = "png", 
              width = tab_width()/100, height = tab_height()/100, units = "in", limitsize=FALSE)
+    }
+  )
+  
+  output$downloadDrugPlot <- downloadHandler(
+    filename = function() { paste0(tools::file_path_sans_ext(input$file$datapath), '.drug.png') },
+    content = function(file) {
+      ggsave(file, plot = drug_plot(), device = "png", 
+             width = width_of_readout_genes/100, height = drug_tab_height()/100, units = "in", limitsize=FALSE)
     }
   )
 })
