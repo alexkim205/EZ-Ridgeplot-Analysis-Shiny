@@ -49,25 +49,22 @@ shinyUI(fluidPage(
              )
     ),
     tabPanel("Screen by Drug",
-             uiOutput("drugplotui", 
-                      align = "center",
-                      style = "height: 40vh; 
-                      overflow-y: auto;
-                      margin-top: 30px;"),
-             hr(),
              fluidRow(
-               # Parameters
-               column(4, offset = 4,
+               column(4, style = "padding: 20px;",
                       h4("Parameters"),
                       uiOutput('day_drug'),
-                      uiOutput('readout_gene_drug')),
-               column(4,
+                      uiOutput('readout_gene_drug'),
                       actionButton('submit_drug', "Generate drug plot"),
                       downloadButton('downloadDrugPlot')
-                      # bookmarkButton()
-               )
+               ),
+               column(8,
+                      uiOutput("drugplotui", 
+                               align = "center",
+                               style = "height: 150vh; 
+                               overflow-y: auto;
+                               margin-top: 30px;"))
              )
     )
+    
   )
-  
 ))
