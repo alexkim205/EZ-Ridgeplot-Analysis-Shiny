@@ -120,18 +120,18 @@ shinyServer(function(input, output, session) {
     
     df <- check_data(v$data)
     df <- df %>% 
-      filter(  target_gene == input$"_pert" &
-                 shrna %in% input$"_pert_type" &
-                 replicate %in% gsub("(.+?)(\\_.*)", "\\1", input$"_rep") &
+      filter(  # target_gene == input$"_pert" &
+                # shrna %in% input$"_pert_type" &
+                replicate %in% gsub("(.+?)(\\_.*)", "\\1", input$"_rep") &
                  assay %in% gsub("^.*\\_","",input$"_rep") &
                  day %in% input$"_day" &
                  readout_gene %in% input$"_readout_gene")
     if (is.null(df)) return (NULL)
     
     switch (input$plottype,
-      "ridge" = make_ridge_plot(df, input$"_pert", "MAE"),
-      "violin" = make_violin_plot(df, input$"_pert", "MAE"),
-      "box" = make_box_plot(df, input$"_pert", "MAE")
+      "ridge" = make_ridge_plot(df, input$"_pert", input$"_pert_type", "MAE"),
+      "violin" = make_violin_plot(df, input$"_pert", input$"_pert_type", "MAE"),
+      "box" = make_box_plot(df, input$"_pert", input$"_pert_type", "MAE")
     )
     
   })
