@@ -80,31 +80,21 @@ make_ridge_plot <- function(df, select_target_gene, select_readout_class = NA) {
   
   # Plotting
   
-  ## calculate max height
-  days = unique(df$day)
-  rgs = unique(df$readout_gene)
-  max_line_height = 0.9
-  if (length(unique(df$replicate)) == 1) {
-    for (day_i in seq_along(days)) {
-      for (rg_i in seq_along(rgs)) {
-        blank_row = (df %>% filter(day==days[day_i], readout_gene==rgs[rg_i]))[1,]
-        blank_row$bias = 0.5
-        blank_row$measurement = ""
-
-      }
-    }
-  }
-  print(tail(df))
-  
   plot <- ggplot(df, aes(bias, measurement)) + 
     facet_grid(readout_gene ~ day) + 
     labs(x = "bias", y = "measurement", title = select_target_gene) +
     geom_density_ridges(scale = 0.9, size = 0.2) +
-    geom_segment(data = df_target, size = 1, aes(x = bias, xend = bias, y = as.numeric(measurement), yend = as.numeric(measurement) + max_line_height/10, color = shrna)) +
     scale_y_discrete(expand = c(0, 0)) +
     # coord_cartesian(ylim=c(0, max(unique(as.numeric(df$measurement)))+1)) + 
     scale_x_continuous(expand = c(0, 0), limits = c(0, 1), breaks=c(0.0,0.25,0.50,0.75,1.00), labels=c("0","0.25","0.50","0.75","1")) +
     plot_theme
+  
+  if (length(unique(df$replicate)) == 1) {
+    plot <- plot + geom_vline(data = df_target, aes(xintercept = bias, color = shrna), size = 1)
+  } else {
+    plot <- plot + 
+      geom_segment(data = df_target, size = 1, aes(x = bias, xend = bias, y = as.numeric(measurement), yend = as.numeric(measurement) + max_line_height/10, color = shrna))
+  }
   
   return(plot)
 }
