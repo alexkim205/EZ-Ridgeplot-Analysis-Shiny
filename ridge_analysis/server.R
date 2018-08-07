@@ -16,10 +16,10 @@ source("plot.R") # Import make_summary_plot() function
 shinyServer(function(input, output, session) {
   
   # Plot dimensions
-  ## Main screen plot
-  width_per_day = 250
-  height_per_replicate = 20
-  ## By drug plot 
+  ## Main screen plot by drug
+  width_per_day = 300
+  height_per_readout = 200
+  ## By readout gene
   width_of_readout_genes = 800
   height_per_day = 350
   
@@ -37,10 +37,10 @@ shinyServer(function(input, output, session) {
   })
   tab_height = eventReactive(input$submit, {
     
-    len_of_rep <- length(input$"_rep")
+    # len_of_rep <- length(input$"_rep")
     len_of_readout <- nrow(v$data %>% filter(readout_gene %in% input$"_readout_gene") %>% count(readout_gene))
     
-    len_of_rep * height_per_replicate * len_of_readout
+    height_per_readout * len_of_readout
     
     # row_height <- length(unique(v$filtered_df$replicate)) * height_per_replicant
     # row_height * length(unique(v$filtered_df$readout_gene))

@@ -38,6 +38,7 @@ make_violin_plot <- function(df, select_target_gene, select_shrna, select_readou
     geom_violin() + coord_flip() + 
     geom_segment(data = df_target, size = 1, aes(y = bias, yend = bias, x = as.numeric(measurement)-0.3, xend = as.numeric(measurement) + 0.3, color = shrna)) + 
     scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks=c(0.0,0.25,0.50,0.75,1.00), labels=c("0","0.25","0.50","0.75","1")) +
+    scale_color_discrete("perturbation type") + 
     plot_theme
   
   return(plot)
@@ -57,15 +58,18 @@ make_ridge_plot <- function(df, select_target_gene, select_shrna, select_readout
   df_target <- df %>% 
     filter(target_gene == select_target_gene, shrna %in% select_shrna)
   
+  line_height = ifelse(length(unique(df$replicate)) == 1, , 0.9)
+  
   # Plotting
   
   plot <- ggplot(df, aes(bias, measurement)) + 
     facet_grid(readout_gene ~ day) + 
     labs(x = "bias", y = "measurement", title = select_target_gene) +
     geom_density_ridges(scale = 0.9, size = 0.2) +
-    geom_segment(data = df_target, aes(x = bias, xend = bias, y = as.numeric(measurement), yend = as.numeric(measurement) + 0.9, color = shrna)) +
+    geom_segment(data = df_target, aes(x = bias, xend = bias, y = as.numeric(measurement), yend = as.numeric(measurement) + 15, color = shrna)) +
     scale_y_discrete(expand = c(0, 0)) +
     scale_x_continuous(expand = c(0, 0), limits = c(0, 1), breaks=c(0.0,0.25,0.50,0.75,1.00), labels=c("0","0.25","0.50","0.75","1")) +
+    scale_color_discrete("perturbation type") + 
     plot_theme
   
   return(plot)
@@ -93,6 +97,7 @@ make_box_plot <- function(df, select_target_gene, select_shrna, select_readout_c
     geom_boxplot(alpha = 0.5, color = '#696969') + coord_flip() + 
     geom_segment(data = df_target, size = 1, aes(y = bias, yend = bias, x = as.numeric(measurement)-0.3, xend = as.numeric(measurement) + 0.3, color = shrna)) + 
     scale_y_continuous(expand = c(0, 0), limits = c(0, 1), breaks=c(0.0,0.25,0.50,0.75,1.00), labels=c("0","0.25","0.50","0.75","1")) +
+    scale_color_discrete("perturbation type") + 
     plot_theme
   
   return(plot)
