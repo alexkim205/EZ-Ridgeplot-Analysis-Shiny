@@ -1,4 +1,6 @@
-# Cell Viability Input README
+# Ridgeplot Analysis Shiny
+
+An interactive tool for visualizing ScreenSeq data.
 
 ## Getting Started
 
