@@ -288,7 +288,7 @@ shinyServer(function(input, output, session) {
   ## Drug plot parameters
   
   output$readout_gene_drug <- renderUI({
-    selectInput('_readout_gene_drug', 'Perturbation', getReadOutGene())
+    selectInput('_readout_gene_drug', 'Readout Gene', getReadOutGene())
   })
   output$day_drug <- renderUI({
     pickerInput('_day_drug', 'Day', 

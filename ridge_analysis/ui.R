@@ -10,7 +10,7 @@ shinyUI(fluidPage(
   # Main plot
   tabsetPanel(
     id = "mainpanel",
-    tabPanel("Screen Panel",
+    tabPanel("Screen by Perturbation",
              uiOutput("mainplotui", 
                       align = "center",
                       style = "height: 60vh; 
@@ -50,13 +50,13 @@ shinyUI(fluidPage(
                )
              )
     ),
-    tabPanel("Screen by Drug",
+    tabPanel("Screen by Readout Gene",
              fluidRow(
                column(4, style = "padding: 20px;",
                       h4("Parameters"),
                       uiOutput('day_drug'),
                       uiOutput('readout_gene_drug'),
-                      actionButton('submit_drug', "Generate drug plot"),
+                      actionButton('submit_drug', "Generate plot"),
                       downloadButton('downloadDrugPlot')
                ),
                column(8,
